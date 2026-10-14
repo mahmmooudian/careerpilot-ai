@@ -1,0 +1,30 @@
+digraph CareerPilot {
+  graph [rankdir=LR, bgcolor="#F8F8F5", pad="0.36", nodesep="0.55", ranksep="0.80", splines=polyline, fontname="DejaVu Sans"];
+  node [shape=box, style="rounded,filled", color="#B9CBC1", penwidth=1.3, fillcolor="#FFFFFF", fontname="DejaVu Sans", fontsize=13, fontcolor="#163029", margin="0.22,0.17"];
+  edge [color="#648778", penwidth=1.4, arrowsize=0.75, fontname="DejaVu Sans", fontcolor="#526960", fontsize=10];
+  browser [label="Local Browser\nHTML · CSS · JS", fillcolor="#EAF1EC"];
+  fastapi [label="FastAPI\nLocal security boundary", fillcolor="#DCEBE2", penwidth=2, color="#3B705A"];
+  parsing [label="Resume Parser\nPDF · DOCX"];
+  candidate [label="Candidate Intelligence\nEvidence-based profile"];
+  discovery [label="Job Discovery\nMulti-source public feeds"];
+  matching [label="Explainable Matching\nSkills · grouping · filters"];
+  drafts [label="Application Studio\nEditable local drafts"];
+  state [label="SQLite\nSaved jobs · notes · searches", shape=cylinder, fillcolor="#F6F0E2", color="#AC996E"];
+  ops [label="Local Operations\nCheck · backup · restore drill", fillcolor="#F6F0E2"];
+  llm [label="External AI Provider\nHTTPS · opt-in only", fillcolor="#EDF1F7", color="#93A5C6"];
+  jobs [label="Public Job Feeds\nRemotive · ATS boards", fillcolor="#EDF1F7", color="#93A5C6"];
+  browser -> fastapi;
+  fastapi -> parsing;
+  parsing -> candidate;
+  candidate -> llm [label="consent"];
+  fastapi -> discovery;
+  discovery -> jobs [label="query only"];
+  discovery -> matching;
+  candidate -> matching;
+  matching -> drafts;
+  fastapi -> drafts;
+  fastapi -> state [dir=both];
+  state -> ops [style=dashed];
+  {rank=same; parsing; discovery; state;}
+  {rank=same; candidate; matching; ops;}
+}

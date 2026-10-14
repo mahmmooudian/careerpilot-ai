@@ -1,0 +1,43 @@
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.egg-info/
+build/
+dist/
+.env
+*.log
+*.pdf
+*.docx
+!tests/fixtures/*.pdf
+!tests/fixtures/*.docx
+.DS_Store
+.vscode/
+.idea/
+
+# Phase 7: user-local state and database snapshots (never commit)
+*.sqlite3
+*.sqlite3-wal
+*.sqlite3-shm
+careerpilot_backup_*.sqlite3
+backups/
+
+# v1.0 local release
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+*.bak
+release_artifacts/
+
+# Publication hygiene: secret variants, derived CV JSON and private exports
+.env.*
+!.env.example
+*resume*.json
+*candidate_profile*.json
+*.xlsx
+*.xls
+*.zip
+private_exports/

@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#102423">
+  <meta name="description" content="CareerPilot AI — evidence-led job discovery and explainable resume matching.">
+  <title>CareerPilot AI — Job Intelligence</title>
+  <link rel="stylesheet" href="/static/careerpilot.css?v=8.0.0">
+  <script src="/static/careerpilot.js?v=8.0.0" defer></script>
+  <script src="/static/opportunity-board.js?v=8.0.0" defer></script>
+  <script src="/static/application-studio.js?v=8.0.0" defer></script>
+  <script src="/static/advanced-intelligence.js?v=8.0.0" defer></script>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar" aria-label="Workspace navigation">
+    <a class="brand" href="/app" aria-label="CareerPilot AI home"><span class="brand-symbol">C<span class="brand-spark">✳</span></span><span>career<span class="brand-light">pilot</span><small>AI WORKSPACE</small></span></a>
+    <div class="side-section"><div class="side-heading">WORKSPACE</div>
+      <a class="side-link active" href="#discover"><span aria-hidden="true">◈</span> Discover & match</a>
+      <a class="side-link" href="#advanced-intelligence"><span aria-hidden="true">⌕</span> Advanced intelligence</a>
+      <a class="side-link" href="#opportunity-board"><span aria-hidden="true">▣</span> Saved opportunities</a>
+      <a class="side-link" href="#application-studio"><span aria-hidden="true">✦</span> Application studio</a>
+    </div>
+    <div class="side-section"><div class="side-heading">SYSTEM</div>
+      <a class="side-link" href="/docs" target="_blank" rel="noopener noreferrer"><span aria-hidden="true">↗</span> API reference</a>
+      <a class="side-link" href="/health" target="_blank" rel="noopener noreferrer"><span aria-hidden="true">●</span> Service status</a>
+    </div>
+    <div class="side-bottom"><div class="safe-icon" aria-hidden="true">⌑</div><p><strong>Human-in-the-loop</strong><span>Read-only recommendations. No applications are sent automatically.</span></p></div>
+  </aside>
+
+  <main class="main-content">
+    <header class="topline"><div><span class="topdot"></span> LOCAL WORKSPACE <span class="slash">/</span> v1.0 · LOCAL RELEASE</div><div class="topline-right"><span class="online-dot"></span> FastAPI connected on this device</div></header>
+    <section id="discover" class="intro">
+      <div class="eyebrow"><span class="eyebrow-mark"></span> INTELLIGENT CAREER EXPLORATION</div>
+      <h1>Discover work that <em>fits your strengths.</em></h1>
+      <p>Search engineering opportunities across public job boards, compare the evidence behind each match, and review location restrictions before making your next move.</p>
+    </section>
+
+    <div class="workspace-grid">
+      <section class="panel setup-panel" aria-labelledby="setup-heading">
+        <div class="panel-header"><div><div class="step-mark">01 / SEARCH SETUP</div><h2 id="setup-heading">Tell us what you're looking for</h2></div><span class="panel-glyph" aria-hidden="true">⌕</span></div>
+        <form id="job-form" novalidate>
+          <label for="roles">TARGET ROLES <span class="required">*</span></label>
+          <input id="roles" name="roles" type="text" required minlength="3" maxlength="400" value="AI Engineer,Machine Learning Engineer,RAG Engineer" placeholder="AI Engineer, ML Engineer" autocomplete="off">
+          <p class="field-hint">Separate multiple titles with commas.</p>
+          <div class="input-grid">
+            <div><label for="work_country">COUNTRY PREFERENCE</label><input id="work_country" name="work_country" maxlength="80" type="text" placeholder="Optional, e.g. Armenia"><p class="field-hint">A preference, not proof of work authorization.</p></div>
+            <div><label for="limit">MAX JOB GROUPS</label><select id="limit" name="limit"><option value="5">5 groups</option><option value="10" selected>10 groups</option><option value="15">15 groups</option><option value="20">20 groups</option></select></div>
+          </div>
+          <div class="toggles"><label class="toggle-label"><input id="remote_only" type="checkbox" checked> Remote listings only</label><label class="toggle-label"><input id="diversify" type="checkbox" checked> Diverse employers</label></div>
+          <div class="form-divider"></div>
+          <div class="label-with-tag"><label for="resume">UPLOAD YOUR RESUME</label><span>Only for AI matching</span></div>
+          <div class="upload-zone" id="drop-zone"><span class="upload-icon" aria-hidden="true">⇪</span><div><strong id="upload-name">Choose a PDF or DOCX resume</strong><small>Or drag and drop here · Resume not saved to your opportunity database</small></div><input id="resume" name="resume" type="file" accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" aria-label="Resume PDF or DOCX"></div>
+          <label class="consent"><input type="checkbox" id="consent"><span>I agree to send my resume text to the configured external AI provider (Groq) for one-time profile analysis.</span></label>
+          <div class="actions"><button class="button-primary" id="analyze-btn" type="button"><span aria-hidden="true">✦</span> Match my resume <span aria-hidden="true">→</span></button><button class="button-secondary" id="preview-btn" type="button">Browse without CV</button></div>
+          <div class="import-line"><label for="saved-json" class="import-label">Already have API results? <strong>Load a JSON file locally →</strong></label><input type="file" id="saved-json" accept=".json,application/json" aria-label="Load saved CareerPilot JSON results"></div>
+        </form>
+      </section>
+      <aside class="insight-col"><section class="insight-card" aria-label="How matching works"><div class="insight-kicker">THE METHOD</div><h2>Evidence first.<br>Not empty promises.</h2><div class="method-line"><span>01</span><div><strong>Discover</strong><small>Read-only public hiring feeds</small></div></div><div class="method-line"><span>02</span><div><strong>Compare</strong><small>Resume-backed skills and role fit</small></div></div><div class="method-line"><span>03</span><div><strong>Review</strong><small>Seniority, countries and requirements</small></div></div><p class="insight-foot">A match score is a technical ranking aid, not a probability of getting hired.</p></section>
+        <section class="notes-card"><span class="note-top">PRIVACY BY DESIGN</span><p>Browsing jobs does not upload your resume. Matching requires explicit consent. Search results stay in this browser tab. Only opportunities you explicitly save are persisted locally.</p><span class="note-badge">NO AUTO APPLY</span></section>
+      </aside>
+    </div>
+
+    <section class="processing" id="processing" hidden aria-live="polite"><div class="spinner" aria-hidden="true"></div><div><strong id="processing-title">Analyzing opportunities…</strong><p>Searching public boards can take a moment. Keep this tab open.</p></div><button id="cancel-btn" type="button" class="text-button">Cancel request</button></section>
+    <div class="error-state" id="error-state" role="alert" hidden></div>
+    <div class="notice-state" id="notice-state" aria-live="polite" hidden></div>
+
+    <section id="results" class="results-section" hidden aria-labelledby="results-heading">
+      <div class="results-title-row"><div><div class="step-mark">02 / RESULTS</div><h2 id="results-heading">Your opportunity board</h2><p id="results-summary">Jobs that align with your search.</p></div><button id="export-btn" type="button" class="button-outline">↓ Export JSON</button></div>
+      <div class="metric-row"><div class="metric"><strong id="metric-groups">—</strong><span>Job groups</span></div><div class="metric"><strong id="metric-listings">—</strong><span>Listings assessed</span></div><div class="metric"><strong id="metric-variants">—</strong><span>Geographic variants</span></div><div class="metric"><strong id="metric-sources">—</strong><span>Sources checked</span></div></div>
+      <section class="candidate" id="candidate" hidden aria-labelledby="candidate-heading"><div class="candidate-heading"><div><div class="micro-label">RESUME INTELLIGENCE</div><h3 id="candidate-heading">Extracted candidate profile</h3></div><span class="manual-review">Review extracted details</span></div><p id="candidate-headline"></p><div class="candidate-meta" id="candidate-meta"></div><div class="skill-pills" id="candidate-skills"></div><p class="extraction-warning" id="extraction-warning" hidden></p><details class="candidate-experience-panel" id="candidate-experience-panel" hidden><summary>Review work experience and dates</summary><ul id="candidate-experience-list"></ul></details></section>
+      <section id="warnings-panel" class="warnings-panel" hidden><h3>Important things to verify</h3><ul id="warnings-list"></ul></section>
+      <div class="results-controls"><div class="view-controls" role="group" aria-label="Filter seniority"><button type="button" data-filter="all" aria-pressed="true">All roles</button><button type="button" data-filter="junior" aria-pressed="false">Junior</button><button type="button" data-filter="senior" aria-pressed="false">Senior</button></div><label class="sort-order-label" for="sort-order">SORT BY <select id="sort-order"><option value="priority" selected>Review priority</option><option value="score">Technical / search score</option><option value="company">Company name</option></select></label><label class="result-search-label" for="result-search">Filter by title / company <input id="result-search" type="search" placeholder="Find a role…"></label></div>
+      <div id="job-cards" class="job-cards"></div>
+      <p class="results-footer">Every opportunity requires independent verification of country eligibility, work authorization, required experience and availability before applying.</p>
+    </section>
+
+    <section id="advanced-intelligence" class="saved-board" aria-labelledby="advanced-heading">
+      <div class="saved-board-header"><div><div class="step-mark">05 / ADVANCED JOB INTELLIGENCE</div>
+        <h2 id="advanced-heading">Find fresher, more relevant roles</h2>
+        <p>Apply transparent, read-only filters across your configured public employer feeds. Publication dates, remote availability and eligibility require manual verification.</p>
+      </div></div>
+      <div class="panel intel-panel">
+        <div class="intel-grid">
+          <label class="studio-field">TARGET ROLES <input id="advanced-roles" value="AI Engineer,Machine Learning Engineer,RAG Engineer" maxlength="400"></label>
+          <label class="studio-field">HIRING COUNTRY PREFERENCE <input id="advanced-country" maxlength="80" placeholder="Optional; never proof of authorization"></label>
+          <label class="studio-field">POSTING LOCATION CONTAINS <input id="advanced-location" maxlength="80" placeholder="Optional: Armenia"></label>
+          <label class="studio-field">SOURCE <select id="advanced-source"><option value="all">All configured sources</option><option value="remotive">Remotive</option><option value="greenhouse">Greenhouse</option><option value="lever">Lever</option><option value="ashby">Ashby</option></select></label>
+          <label class="studio-field">SENIORITY <select id="advanced-seniority"><option value="any">Any level</option><option value="junior">Junior / entry</option><option value="mid">Mid / unspecified</option><option value="senior">Senior / architect</option></select></label>
+          <label class="studio-field">MAXIMUM AGE <select id="advanced-age"><option value="">Any date</option><option value="7">7 days</option><option value="30">30 days</option><option value="60">60 days</option><option value="90">90 days</option></select></label>
+          <label class="studio-field">MAXIMUM YEARS PHRASE (OPTIONAL) <select id="advanced-years"><option value="">Do not filter</option><option value="2">2+</option><option value="3">3+</option><option value="5">5+</option></select></label>
+          <label class="studio-field">MIN DESCRIPTION LENGTH <select id="advanced-min-description"><option value="0">Any</option><option value="80" selected>80 characters</option><option value="200">200 characters</option></select></label>
+          <label class="studio-field">REQUIRED KEYWORDS <input id="advanced-required" maxlength="150" placeholder="e.g. Python,RAG"></label>
+          <label class="studio-field">EXCLUDED KEYWORDS <input id="advanced-excluded" maxlength="150" placeholder="e.g. internship"></label>
+          <label class="studio-field">MAX GROUPS <select id="advanced-limit"><option value="10">10</option><option value="15" selected>15</option><option value="20">20</option><option value="30">30</option></select></label>
+        </div>
+        <div class="intel-toggles"><label><input id="advanced-remote" type="checkbox" checked> Remote listings only</label><label><input id="advanced-diversify" type="checkbox" checked> Diversify employers</label><label><input id="advanced-unknown" type="checkbox"> Include postings with unknown dates when filtering by age</label></div>
+        <button class="button-primary" type="button" id="advanced-run">⌕ Search public job feeds</button>
+        <p class="field-hint">Date unknown ≠ newly posted. Experience years are text mentions, not eligibility decisions. LinkedIn scraping and auto-apply are not used.</p>
+      </div>
+      <p id="advanced-message" class="board-message" role="status" aria-live="polite" hidden></p>
+      <div id="advanced-results" hidden>
+        <h3>Filtered opportunities</h3><p id="advanced-statistics" class="intel-subtitle"></p>
+        <div id="advanced-counts" class="intel-counts"></div><div id="advanced-cards" class="intel-results"></div>
+        <details class="group-review"><summary>Source and freshness warnings</summary><ul id="advanced-warnings"></ul></details>
+      </div>
+      <div class="panel intel-panel intel-watches"><h3>Saved searches — check manually</h3>
+        <p class="field-hint">Store your search settings locally. Click Check now to compare displayed posting URLs with the previous check. No scheduled monitoring or notifications.</p>
+        <div class="intel-watch-setup"><input id="advanced-watch-name" placeholder="Search name (e.g. Junior RAG opportunities)" maxlength="80"><button class="button-secondary" id="advanced-save-watch" type="button">Save this search</button><button class="button-outline" id="advanced-refresh-watches" type="button">↻ Refresh list</button></div>
+        <div id="advanced-watch-list" class="intel-watch-list"></div><div id="advanced-new-jobs"></div>
+      </div>
+    </section>
+
+    <section id="opportunity-board" class="saved-board" aria-labelledby="saved-heading">
+      <div class="saved-board-header"><div><div class="step-mark">03 / OPPORTUNITY MANAGEMENT</div><h2 id="saved-heading">Your saved opportunities</h2><p>Save individual geographic postings, record actions yourself, and keep interviews on your radar.</p></div><button id="board-refresh" type="button" class="button-outline">↻ Refresh board</button></div>
+      <div class="board-insights" role="group" aria-label="Tracking summary">
+        <div><strong id="board-count">—</strong><span>Saved locally</span></div>
+        <div><strong id="board-applied">—</strong><span>Marked applied</span></div>
+        <div><strong id="board-interviews">—</strong><span>Interviews</span></div>
+        <div><strong id="board-followups">—</strong><span>Follow-ups due</span></div>
+      </div>
+      <div class="board-toolbar"><label for="board-stage">APPLICATION STAGE<select id="board-stage"><option value="">All stages</option><option value="saved">Saved</option><option value="researching">Researching</option><option value="ready_to_apply">Ready to apply</option><option value="applied">Applied (user recorded)</option><option value="interview">Interview</option><option value="offer">Offer</option><option value="rejected">Rejected</option><option value="withdrawn">Withdrawn</option><option value="archived">Archived</option></select></label><label for="board-search">SEARCH SAVED JOBS<input id="board-search" type="search" placeholder="Company, title or location"></label></div>
+      <p id="board-message" class="board-message" role="status" aria-live="polite" hidden></p>
+      <div id="saved-cards" class="saved-cards" aria-live="polite"><p class="board-empty">Loading saved opportunities…</p></div>
+      <p class="saved-footnote">Only the public posting link, title, company, location, optional ranking score, notes and manually recorded tracking details are stored on this device. No email, applications or interview invitations are sent automatically. This local prototype has no user login; do not expose it to the internet.</p>
+    </section>
+
+    <section id="application-studio" class="results-section application-studio" aria-labelledby="studio-heading">
+      <div class="results-title-row"><div><div class="step-mark">04 / APPLICATION ASSISTANT</div>
+        <h2 id="studio-heading">Tailor your application</h2>
+        <p>Prepare an editable, evidence-backed resume and cover letter. Local drafting only — never automatic submission.</p>
+      </div></div>
+      <div class="panel studio-panel">
+        <div class="studio-profile-status" id="studio-profile-status" role="status">No candidate profile loaded. Match a resume or import an earlier grouped matching JSON first.</div>
+        <div class="studio-row">
+          <label class="studio-field" for="studio-title">JOB TITLE<input id="studio-title" maxlength="240" placeholder="Junior AI/ML Engineer" required></label>
+          <label class="studio-field" for="studio-company">COMPANY<input id="studio-company" maxlength="160" placeholder="Company name" required></label>
+        </div>
+        <label class="studio-field" for="studio-location">POSTING LOCATION (OPTIONAL)<input id="studio-location" maxlength="200" placeholder="Yerevan"></label>
+        <label class="studio-field" for="studio-description">JOB DESCRIPTION (REQUIRED)
+          <textarea id="studio-description" rows="9" maxlength="18000" placeholder="Paste the original job description here. Select Prepare drafts from a matching result to fill this automatically."></textarea>
+        </label>
+        <p class="field-hint">Job requirements and geographic eligibility are not automatically verified. Check the employer's original listing before applying.</p>
+        <button class="button-primary" id="studio-generate" type="button">✦ Prepare evidence-backed drafts</button>
+        <div class="error-state" id="studio-error" role="alert" hidden></div>
+        <div class="notice-state" id="studio-success" role="status" hidden></div>
+      </div>
+      <div id="studio-output" hidden>
+        <section class="panel studio-panel"><h3>Evidence &amp; requirements to verify</h3>
+          <div class="studio-row"><div><h4>Matched with profile evidence</h4><ul id="studio-matched"></ul></div>
+          <div><h4>Technologies to verify</h4><ul id="studio-verify"></ul><p id="studio-years" class="field-hint"></p></div></div>
+        </section>
+        <section class="panel studio-panel"><div class="studio-output-head"><h3>Tailored resume — editable draft</h3><div><button class="button-outline" type="button" id="studio-resume-copy">Copy</button> <button class="button-outline" type="button" id="studio-resume-download">Download .txt</button></div></div>
+          <textarea rows="16" id="studio-resume-text" aria-label="Editable tailored resume"></textarea>
+        </section>
+        <section class="panel studio-panel"><div class="studio-output-head"><h3>Cover letter — editable draft</h3><div><button class="button-outline" type="button" id="studio-letter-copy">Copy</button> <button class="button-outline" type="button" id="studio-letter-download">Download .txt</button></div></div>
+          <textarea rows="12" id="studio-letter-text" aria-label="Editable cover letter"></textarea>
+        </section>
+        <section class="panel studio-panel"><h3>Human review required</h3><ul id="studio-review-notes"></ul></section>
+      </div>
+    </section>
+    <footer class="site-footer"><span>© CareerPilot AI — LOCAL v1.0</span><span>Built to explain, not to overpromise.</span></footer>
+  </main>
+</div>
+</body>
+</html>
