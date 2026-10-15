@@ -2,209 +2,425 @@
 
 # CareerPilot AI
 
-### Explainable job intelligence, from resume to application draft
+### An Explainable AI-Powered Job Intelligence & Application Workspace
 
-**Local-first · Consent-gated AI · Human-in-the-loop**
+**From resume understanding to evidence-backed opportunities and application drafts.**
 
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
-![Version](https://img.shields.io/badge/release-v1.0.0--local-25675A)
-![FastAPI](https://img.shields.io/badge/API-FastAPI-009688?logo=fastapi&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-178%20passed-357A59)
-![Deployment](https://img.shields.io/badge/deployment-localhost%20only-D69F48)
+[![FastAPI](https://img.shields.io/badge/FastAPI-Backend-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![CI](https://github.com/mahmmooudian/careerpilot-ai/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/mahmmooudian/careerpilot-ai/actions/workflows/ci.yml)
+![Release](https://img.shields.io/badge/Release-v1.0.0--local-294F47)
 
-A Python/FastAPI workspace that turns a candidate's resume into **evidence-backed, explainable job recommendations**, adds multi-source public vacancy discovery and local opportunity tracking, and helps prepare editable application materials—**without automatically applying to jobs**.
-
-**[Architecture](docs/architecture.md) · [Windows setup](docs/setup-windows.md) · [Privacy & security](SECURITY.md) · [Release checklist](docs/release-checklist.md)**
+**[Overview](#overview) · [Architecture](#high-level-architecture) · [Quick Start](#quick-start) · [Documentation](#documentation) · [Release](https://github.com/mahmmooudian/careerpilot-ai/releases/tag/v1.0.0-local)**
 
 </div>
 
 ---
 
-## Product preview
+## Overview
 
-> These screenshots are cropped from a local development run. Job counts are illustrative snapshots, **not** guaranteed live results or model-performance benchmarks. Please review images before publishing.
+Finding a relevant position requires more than collecting vacancy links. Candidates must translate a resume into structured evidence, compare inconsistent job descriptions, distinguish technical alignment from actual eligibility, track opportunities across hiring platforms, and prepare tailored applications without overstating their experience.
 
-| Job discovery and candidate matching | Advanced job intelligence |
+**CareerPilot AI** is a **local-first, single-user job intelligence platform** built with Python and FastAPI. It unifies document parsing, consent-gated AI profile extraction, multi-source job discovery, explainable matching, advanced filtering, opportunity tracking, and editable application drafting in one browser-based workspace.
+
+The system is designed to **support human decisions—not automate hiring decisions or job applications**. Relevance scores indicate technical alignment for review; they do not predict interview or hiring probability.
+
+### The problem and the approach
+
+| Challenge | CareerPilot AI approach |
 |---|---|
-| ![CareerPilot job discovery overview](docs/screenshots/discovery-overview.png) | ![CareerPilot advanced job intelligence results](docs/screenshots/advanced-intelligence.png) |
+| Unstructured resumes | Local PDF/DOCX parsing and optional, consent-gated structured profile extraction |
+| Fragmented vacancy sources | Normalized discovery across supported public job feeds |
+| Repeated listings across locations | Job grouping while preserving individual geographic variants |
+| Opaque job recommendations | Inspectable technical relevance and explicit review warnings |
+| Scattered application tracking | Local SQLite opportunity board and manual search baselines |
+| Generic application material | Editable drafts grounded in the candidate profile and original job description |
 
-![CareerPilot application preparation form](docs/screenshots/application-studio.png)
+---
 
-## Why CareerPilot AI?
+## Key Capabilities
 
-Job discovery is not just a search problem. Applicants need to interpret varied job feeds, detect duplicates across countries, understand why a position appears relevant, verify eligibility requirements, and keep track of follow-ups.
+### 1. Resume Intelligence
 
-CareerPilot AI combines these workflows while **separating what the system can verify from what the applicant must decide**. In particular, a technical match score is **not** a hiring probability, and a remote label does **not** establish work authorization.
+- Parse PDF and DOCX resumes locally, with input validation and readable error responses.
+- Optionally extract a structured candidate profile through a configured OpenAI-compatible AI provider **only after explicit user consent**.
+- Organize skills, experience, roles, and projects into reusable candidate evidence.
+- Surface extraction warnings and require verification against the original resume.
 
-## Features
+### 2. Multi-Source Job Discovery
 
-| Capability | Implemented in v1.0 |
+- Search the **Remotive** public feed and optionally configured **Greenhouse, Lever, and Ashby** public employer boards.
+- Normalize listings from different providers into comparable records.
+- Retrieve opportunities across multiple target roles and group related postings.
+- Preserve separate locations and original posting links instead of collapsing geographic requirements.
+
+### 3. Explainable Job Matching
+
+- Compare candidate evidence with job titles, technologies, and description content.
+- Produce deterministic, review-oriented technical relevance scores.
+- Distinguish matched information from missing or unverified requirements.
+- Flag remote-work and geographic eligibility assumptions for manual investigation.
+
+### 4. Advanced Job Intelligence
+
+- Filter results by role seniority, source, location, keywords, remote status, description quality, and available publication-age metadata.
+- Treat unknown posting dates as **unknown**, not automatically recent.
+- Save search configurations locally and manually compare newly observed listing URLs against a previous check.
+- Keep location-specific variants visible within a grouped opportunity.
+
+### 5. Opportunity Management
+
+- Save opportunities to a local SQLite database.
+- Track application stages, notes, follow-up dates, interview details, and activity history.
+- Keep user-entered tracking actions separate from actual submissions to employers.
+- Verify database integrity and create consistent private backups.
+
+### 6. Application Assistant
+
+- Generate editable, job-specific **resume text and cover-letter drafts** from a supplied candidate profile and job description.
+- Identify skill alignment and technologies that still need verification.
+- Use a **local deterministic drafting workflow**; drafting does not make an additional LLM call.
+- Require human editing and fact-checking before the documents are used.
+
+---
+
+## Product Preview
+
+*Screenshots are from a local development session. Job counts illustrate one run, not guaranteed live availability or benchmark performance.*
+
+| Discover & Match | Advanced Job Intelligence |
+|:---:|:---:|
+| ![CareerPilot job discovery dashboard](docs/screenshots/discovery-overview.png) | ![CareerPilot advanced filtering results](docs/screenshots/advanced-intelligence.png) |
+
+**Application Studio**
+
+![CareerPilot application drafting workspace](docs/screenshots/application-studio.png)
+
+---
+
+## High-Level Architecture
+
+CareerPilot AI follows a modular, API-driven architecture with **explicit boundaries between local processing, authorized external requests, and persistent user state**.
+
+![CareerPilot AI system architecture](docs/assets/architecture.svg)
+
+**Architectural layers**
+
+| Layer | Main responsibility | Implementation |
+|---|---|---|
+| Presentation | Search, inspect, track, and prepare applications | Same-origin HTML, CSS, and JavaScript dashboard |
+| API & validation | Route requests and validate inputs | FastAPI, Pydantic |
+| Resume intelligence | Parse resumes; request optional AI profile extraction | PyMuPDF, python-docx, configured LLM provider |
+| Job intelligence | Retrieve, normalize, group, filter, and rank listings | Public ATS feeds, HTTPX, deterministic matching |
+| Application preparation | Compose editable drafts with evidence-review indicators | Local deterministic text generation |
+| Persistence | Save opportunity metadata, notes, stages, and search baselines | SQLite |
+| Operations & security | Local access checks, integrity, backups, and release checks | Middleware and `app.ops` commands |
+
+**Trust boundaries:** PDF/DOCX parsing, job tracking, and application drafting run locally. Job providers receive job-search parameters, **not the uploaded resume**. Resume-derived content is sent to the configured AI provider **only with explicit consent**. The API is intended for localhost, not a publicly exposed multi-user service.
+
+For component responsibilities, data-flow details, and design trade-offs, see [Technical Architecture](docs/architecture.md) and [Engineering Design Decisions](docs/design-decisions.md).
+
+---
+
+## Technical Core & Workflow
+
+```text
+Candidate resume (PDF / DOCX)
+          |
+          v
+Local parsing and validation
+          |
+          +---- Explicit consent ----> External LLM profile extraction
+          |                                        |
+          +----------------------------------------+
+                           |
+                           v
+                Structured candidate profile
+                           |
+                           v
+ Public job feeds --> Normalize --> Group geographic variants
+                           |
+                           v
+                Explainable relevance review
+                           |
+              +------------+-------------+
+              |                          |
+              v                          v
+      Advanced job filters        Saved opportunity board
+              |                          |
+              +------------+-------------+
+                           |
+                           v
+            Human review + original job description
+                           |
+                           v
+          Local resume / cover-letter text drafts
+                           |
+                           v
+                User edits and applies manually
+```
+
+### Matching and decision boundaries
+
+Matching is **heuristic and explainable**, not a supervised model trained on hiring outcomes. The system supports relevance review and flags uncertainty around work authorization, remote eligibility, and experience requirements. Neither a high score nor a remote-work label constitutes an eligibility decision.
+
+### Search-history semantics
+
+A saved search compares observed listing **URLs** with an earlier manually recorded baseline. A newly observed URL is **not proof that a vacancy was recently published**. There is no background scheduler or automatic alert delivery in this release.
+
+### Application-drafting semantics
+
+The application assistant composes editable text using supplied profile evidence and the original job posting. The user must confirm dates, skills, experience, and other claims. It does **not** submit applications or communicate with employers.
+
+---
+
+## Results & Verification
+
+The version `v1.0.0-local` was validated with automated tests and a local database recovery exercise. These figures describe **engineering verification**, not predictive model accuracy.
+
+| Validation area | Verified outcome |
 |---|---|
-| Resume ingestion | PDF/DOCX text extraction using local Python libraries |
-| AI-assisted candidate profile | Evidence-oriented extraction using a configured OpenAI-compatible provider, **only after explicit consent** |
-| Job discovery | Read-only public feeds from Remotive, plus optional configured Greenhouse, Lever and Ashby employer boards |
-| Matching and explanations | Deterministic title/skill relevance, missing-technologies-to-review lists and geographic review flags |
-| Multi-region grouping | Deduplicates related postings while retaining distinct geographic variants |
-| Advanced intelligence | Filters by seniority, source, text, remote flags, listed experience years and publication-age metadata |
-| Saved job searches | SQLite-backed saved queries and **manual** comparisons of newly seen listing URLs |
-| Opportunity management | Local saved jobs, stage updates, private notes, follow-ups and activity history |
-| Application studio | Editable resume and cover-letter **drafts** prepared locally from supplied profile evidence and a job description |
-| Maintenance tools | SQLite health checks, consistent backups, isolated-memory restore drills and local-release checks |
-| Dashboard | Bundled HTML/CSS/JavaScript with same-origin FastAPI endpoints; no CDN or frontend build required |
+| Automated testing | **178 pytest checks passed** in the release validation |
+| Continuous integration | Successful GitHub Actions jobs on **Python 3.10 and 3.11** |
+| Database recovery | Isolated-memory SQLite restore drill completed against a private backup |
+| Release checks | Local-readiness checks passed in the configured development environment |
+| Browser interface | Job discovery, advanced filtering, and saved-opportunity views exercised locally |
 
-### Design principles
-
-- **Consent before external resume analysis.** Public job sources receive query parameters, not the candidate's resume. If AI profile extraction is requested and approved, resume text is sent to the configured AI provider.
-- **Explainable rather than predictive.** Scores rank relevance for review and do not forecast offers, interviews or visa eligibility.
-- **Evidence before claims.** Drafts distinguish directly evidenced skills from technologies needing verification; generated text requires human fact-checking.
-- **Keep users in control.** No LinkedIn scraping, background alerts, automatic job submissions or email sending.
-- **Private local state.** Saved opportunities, notes and searches live in a local SQLite database; raw resumes are not stored as a persistent application database feature.
-
-## Architecture
-
-![CareerPilot AI high-level architecture](docs/assets/architecture.svg)
-
-**Request boundary:** a localhost-only FastAPI app mediates browser interaction. PDF/DOCX parsing and application drafting happen locally; candidate extraction can call a configured external AI service **with consent**. Public job feeds receive search terms. The local SQLite database stores user-curated tracking state, not entire resume files. See [architecture and trust boundaries](docs/architecture.md).
-
-### Technology
-
-`Python 3.10+` · `FastAPI` · `Pydantic v2` · `HTTPX` · `PyMuPDF` · `python-docx` · `SQLite` · `Vanilla JavaScript` · `HTML/CSS` · `pytest` · `Docker Compose (local-only)`
-
-## Quick start — Windows / PowerShell
-
-**Prerequisites:** Python 3.10+ and a modern browser; a configured AI provider is optional for browsing public jobs but needed for consent-gated resume analysis. For detailed steps, see [Windows setup](docs/setup-windows.md).
+One development-session dashboard displayed **430 listings assessed, 8 job groups, and 14 geographic variants** across configured sources. This is an **illustrative snapshot** and should not be interpreted as a repeatable benchmark, a guarantee of current vacancy availability, or hiring-performance evidence.
 
 ```powershell
-# In the repository root:
+python -m pytest -q
+python -m app.ops check
+python -m app.ops release-check
+```
+
+The GitHub Actions workflow is available in [`.github/workflows/ci.yml`](.github/workflows/ci.yml). Live job-provider availability, external AI responses, and Docker behavior vary by environment and require separate checks.
+
+---
+
+## Quick Start
+
+### Requirements
+
+- Python **3.10+** and Windows PowerShell (Windows 10/11 recommended for the documented commands).
+- Internet access to install dependencies and search external public job sources.
+- An AI provider API key **only if** using opt-in resume profile extraction.
+- Docker Desktop is optional; it is not required for the native setup.
+
+### 1. Clone and create an environment
+
+```powershell
+git clone https://github.com/mahmmooudian/careerpilot-ai.git
+cd careerpilot-ai
 py -3 -m venv .venv
 .\.venv\Scripts\python.exe -m pip install --upgrade pip
 .\.venv\Scripts\python.exe -m pip install -e ".[dev]"
+```
+
+### 2. Configure local settings
+
+```powershell
 Copy-Item .env.example .env
-# Edit your PRIVATE .env locally to configure a provider; never commit it.
+```
+
+Edit `.env` on your own machine. For AI-assisted candidate profile extraction, configure `AI_API_KEY`, `AI_BASE_URL`, and `AI_MODEL`. If you do not intend to use external AI processing, leave `AI_API_KEY` empty. **Never commit `.env` or publish tokens.** Public-feed discovery does not require an AI key.
+
+Optional employer board configuration uses the public identifiers `JOB_GREENHOUSE_BOARDS`, `JOB_LEVER_SITES`, and `JOB_ASHBY_BOARDS`; `JOB_REMOTIVE_ENABLED` controls the Remotive feed.
+
+### 3. Run tests and start the app
+
+```powershell
 .\.venv\Scripts\python.exe -m pytest -q
 .\.venv\Scripts\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8000
 ```
 
-Open **http://127.0.0.1:8000/app** for the dashboard or **http://127.0.0.1:8000/docs** for the interactive API reference. If you only need public job browsing, you can leave `AI_API_KEY` unset. **However, `release-check` evaluates full local-release configuration and may report `local_ready: false` until a real AI provider key is configured; this does not by itself prevent public-feed browsing.**
+**Dashboard:** http://127.0.0.1:8000/app  
+**Interactive API docs:** http://127.0.0.1:8000/docs  
+**Health endpoint:** http://127.0.0.1:8000/health
 
-> Existing phased installations may have `.venv` **one directory above** the repository. In that case, use `..\.venv\Scripts\python.exe` instead of `.\.venv\Scripts\python.exe`. See the complete guide before moving files.
+> `release-check` checks full local-release configuration and can report incomplete readiness when no AI API key is configured; this does not necessarily prevent public job searching.
 
-### Environment configuration
+Detailed installation: [Windows Setup Guide](docs/setup-windows.md).
 
-Create `.env` from `.env.example` and configure it **locally**:
+---
 
-| Variable | Meaning |
-|---|---|
-| `AI_API_KEY` | Secret API token for the configured external LLM provider; required only for AI profile extraction |
-| `AI_BASE_URL` | OpenAI-compatible HTTPS endpoint (default example: Groq) |
-| `AI_MODEL` | Provider-specific model identifier |
-| `JOB_REMOTIVE_ENABLED` | Toggle Remotive public discovery |
-| `JOB_GREENHOUSE_BOARDS` | Comma-separated public Greenhouse board slugs |
-| `JOB_LEVER_SITES` | Comma-separated public Lever site slugs |
-| `JOB_ASHBY_BOARDS` | Comma-separated public Ashby board slugs |
+## Usage
 
-**No employer ATS account passwords or candidate application credentials are required.** Provider slugs are public hiring-board identifiers, not secrets.
-
-## Main workflows
-
-**Discover & match:** browse public postings by role, or—with consent—upload a resume to extract an AI-supported candidate profile, review evidence, and rank relevant jobs. Geographic and experience requirements are flagged for manual inspection.
-
-**Advanced intelligence:** choose filtering criteria and compare grouped variants of job postings. Date-unknown postings are not labeled newly published. Create a saved search and manually choose *Check now* to compare posting URLs with a previous baseline; this does **not** schedule monitoring.
-
-**Saved opportunities:** store a job's title, company, link and optional review score, then record your application stage, private notes, follow-up date and interview status. These records are user-entered; changing a stage does **not** contact the employer.
-
-**Application studio:** supply the candidate profile and full original job description. The local deterministic drafting engine outputs an editable, evidence-oriented resume text and cover letter, plus technologies to verify. **No automatic application is sent.** A saved job may require reloading a profile and manually pasting the original description.
-
-## API overview
-
-| Method | Route | Purpose |
+| Workspace | Typical task | Important constraint |
 |---|---|---|
-| `POST` | `/api/v1/resumes/parse` | Local document text extraction |
-| `POST` | `/api/v1/resumes/analyze` | Consent-gated candidate extraction |
+| **Discover & Match** | Parse or analyze a resume, discover jobs, and inspect ranked groups | External profile analysis requires explicit consent |
+| **Advanced Intelligence** | Filter vacancies and review location variants | Dates and eligibility may be unknown |
+| **Saved Opportunities** | Record stage, notes, follow-ups, and interviews | A saved or updated record is **not** an application submission |
+| **Application Studio** | Draft editable resume and cover-letter text | Original description and profile evidence must be supplied and reviewed |
+
+### Selected API endpoints
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `POST` | `/api/v1/resumes/parse` | Local PDF/DOCX parsing |
+| `POST` | `/api/v1/resumes/analyze` | Consent-gated AI profile extraction |
 | `GET` | `/api/v1/jobs/search` | Public job discovery |
-| `POST` | `/api/v1/jobs/recommend` | Candidate-aware job ranking |
-| `GET` | `/api/v1/jobs/search/multi/grouped` | Grouped multi-role discovery |
-| `POST` | `/api/v1/jobs/recommend/multi/grouped` | Grouped recommendations |
-| `GET` | `/api/v1/jobs/intelligence/search` | Advanced filters and freshness classification |
-| `GET / POST / PATCH / DELETE` | `/api/v1/opportunities` | Local saved opportunity tracking (item actions use `/{identifier}`) |
-| `GET / POST / DELETE` | `/api/v1/job-watches` | Saved job search configurations |
-| `POST` | `/api/v1/job-watches/{identifier}/check` | Manually update a search baseline |
-| `POST` | `/api/v1/application/draft` | Local application drafts |
-| `GET` | `/health` | Lightweight local liveness endpoint |
+| `POST` | `/api/v1/jobs/recommend` | Candidate-aware relevance review |
+| `GET` | `/api/v1/jobs/intelligence/search` | Advanced job intelligence |
+| `GET` / `POST` / `PATCH` / `DELETE` | `/api/v1/opportunities` | Local opportunity management (item routes vary) |
+| `GET` / `POST` / `DELETE` | `/api/v1/job-watches` | Saved job searches |
+| `POST` | `/api/v1/job-watches/{identifier}/check` | Manual search comparison |
+| `POST` | `/api/v1/application/draft` | Local application drafting |
 
-See **`/docs`** for actual Pydantic request schemas, optional fields and responses. Do not infer that route availability means public access is supported.
+See `/docs` for the full route catalogue and validated request/response schemas.
 
-## Quality and verification
-
-In the tested v1.0 local build, **178 pytest checks passed**, including API behavior, matching and grouping regressions, local origin restrictions, database persistence, release checks, and restore-drill scenarios. The Windows restore drill successfully verified a real private SQLite backup in isolated memory. External job feeds, AI provider availability and Docker startup vary by machine and network; they are not guaranteed by these unit tests.
+### Local database backup and restore check
 
 ```powershell
-.\.venv\Scripts\python.exe -m pytest -q
-.\.venv\Scripts\python.exe -m app.ops check
-.\.venv\Scripts\python.exe -m app.ops release-check
+$backupDir = "$env:USERPROFILE\Documents\CareerPilotBackups"
+New-Item -ItemType Directory -Force -Path $backupDir
+
+.\.venv\Scripts\python.exe -m app.ops backup --destination $backupDir
+
+$backup = Get-ChildItem "$backupDir\careerpilot_backup_*.sqlite3" |
+  Sort-Object LastWriteTime -Descending |
+  Select-Object -First 1
+
+.\.venv\Scripts\python.exe -m app.ops restore-drill --backup "$($backup.FullName)"
 ```
 
-For a private database backup (the destination directory must exist):
+The restore drill uses an **isolated in-memory database** and leaves the live SQLite database unchanged. Store backups outside the repository; they may contain private job notes and search preferences.
 
-```powershell
-.\.venv\Scripts\python.exe -m app.ops backup --destination "$env:USERPROFILE\Documents\CareerPilotBackups"
-# Then run a restore-drill using the actual backup path.
-```
-
-**Warning:** snapshots can contain job notes and search preferences. Keep them private; never attach backups to GitHub releases.
-
-### Docker — optional, local only
+### Optional Docker Compose
 
 ```bash
 docker compose up --build -d
 docker compose ps
 ```
 
-The Compose configuration publishes `127.0.0.1:8000` on the **host only**, while the container listens on its internal bridge address. Docker uses an isolated named volume **separate** from the Windows database. The Docker build has not been validated on every target machine; verify it yourself before relying on it. Avoid `docker compose down -v` unless you intend to delete Docker's volume data.
+Compose is configured for **localhost-only host binding** and uses a Docker volume separate from a native Windows installation. Container startup must still be verified on the target machine. Do not expose the service publicly.
 
-## Security, privacy and limitations
+---
 
-> [!WARNING]
-> **Local single-user application—not a public SaaS.** No multi-user login, public deployment authorization, hosted TLS termination, or complete internet-facing threat protection is provided. **Do not** publish port 8000 on the internet, attach public tunnels, or expose the service to a LAN without additional design and security work.
+## Technology Stack
 
-- No employment outcome guarantee, validated work authorization, verified application eligibility, or automated action on employer systems.
-- LLM-generated profile evidence can be incomplete or wrong. Review original resumes and all application drafts before use.
-- Job providers may change APIs, reduce availability, rate-limit, remove ads, or report incomplete publication dates.
-- Candidate resumes are **not** uploaded to job providers; the configured LLM receives content only with explicit user permission.
-- No direct LinkedIn integration, scraping, scheduled notifications, or auto-apply.
-- Local SQLite storage and snapshots are **not** encrypted by this app; secure your computer and backups.
-- Dependency versions are bounded but not hash-locked; maintainers should scan and update packages.
+| Category | Technologies |
+|---|---|
+| Programming & backend | Python 3.10+, FastAPI, Pydantic v2 |
+| AI-assisted extraction | OpenAI-compatible chat-completion API (Groq example configuration) |
+| Document intelligence | PyMuPDF, python-docx |
+| HTTP and source integration | HTTPX, Remotive, Greenhouse, Lever, Ashby public feeds |
+| Persistence | SQLite |
+| Frontend | HTML5, CSS3, Vanilla JavaScript |
+| Testing & CI | pytest, GitHub Actions (Python 3.10 / 3.11) |
+| Packaging & local operation | Uvicorn, Docker, Docker Compose |
 
-Details: [Security policy](SECURITY.md) · [Release checklist](docs/release-checklist.md) · [Design decisions](docs/design-decisions.md).
+---
 
-## Repository structure
+## Project Structure
 
 ```text
-app/
-  api/                # HTTP routing
-  core/               # Configuration, local security and maintenance
-  ops/                # Health, backup, restore and release CLI
-  schemas/            # Pydantic contracts
-  services/           # Resume, matching, discovery, drafts and stores
-  web/                # Same-origin dashboard
- tests/               # Automated tests (178 passing in verified local build)
- docs/                # Architecture, setup, release and screenshots
- Dockerfile
- compose.yaml
- pyproject.toml
- .env.example
+careerpilot-ai/
+├── app/
+│   ├── api/                   # FastAPI endpoints
+│   ├── core/                  # Configuration, local security, release checks
+│   ├── ops/                   # Health, backup, restore and release CLI
+│   ├── schemas/               # Pydantic data models
+│   ├── services/              # Resume, discovery, ranking, drafting, SQLite
+│   ├── web/                   # Browser dashboard assets
+│   └── main.py                # FastAPI application entry point
+├── tests/                     # Automated test suite
+├── docs/
+│   ├── assets/                # Architecture diagram
+│   ├── screenshots/           # Sanitized dashboard previews
+│   ├── architecture.md
+│   ├── design-decisions.md
+│   ├── setup-windows.md
+│   └── release-checklist.md
+├── .github/workflows/ci.yml   # Python version-matrix CI
+├── .env.example               # Non-secret configuration template
+├── .gitignore
+├── .dockerignore
+├── Dockerfile
+├── compose.yaml
+├── pyproject.toml
+├── CHANGELOG.md
+├── SECURITY.md
+└── README.md
 ```
 
-## Release scope and next steps
+---
 
-This repository represents the **v1.0.0 local feature freeze**. Potential follow-up versions may refine saved-job → draft context transfer, recruitment-source integrations, browser UX, deployment architecture and opt-in scheduled notifications. These are **not implemented or promised in v1.0**.
+## Engineering Principles
+
+**Evidence over speculation.** Resume-derived information and job requirements are presented with verification boundaries rather than as automatically trusted facts.
+
+**Explainability over black-box scores.** The matching component produces inspectable relevance indicators, not unsupported hiring predictions.
+
+**Privacy by design within local scope.** Parsing and drafting are local. Sending resume-derived text to an external AI provider is explicitly opt-in; saved tracking state is stored in local SQLite.
+
+**Human-in-the-loop execution.** Users review every recommendation and draft. The system does not submit applications, message recruiters, or modify employer platforms.
+
+**Modularity and testability.** API contracts, domain services, browser assets, operational tooling, and persistence are separated for maintainability and regression testing.
+
+**Clear operational limits.** Local-only access restrictions and backup checks are safeguards, **not substitutes for authentication or a complete production security review**.
+
+---
+
+## Current Scope & Limitations
+
+> [!WARNING]
+> **CareerPilot AI v1.0 is a local, single-user application—not a publicly hosted SaaS or multi-user service.** Do not expose its API over public networks or tunnels without implementing a separate authentication and security architecture.
+
+- **No employment prediction:** Technical match scores do not estimate hiring probability or confirm eligibility.
+- **No automated applications:** No auto-apply, recruiter messaging, or direct employer account actions.
+- **No LinkedIn scraping:** Discovery is based on the implemented public-source integrations.
+- **No scheduled monitoring:** Saved-search checks are manually initiated; URL novelty does not establish posting freshness.
+- **No independent verification of resume claims:** AI profile extraction can be incomplete or inaccurate; drafts require user approval and editing.
+- **No default full-context handoff from saved jobs:** The Application Studio may require the original job description and candidate profile to be supplied again.
+- **No public deployment security:** Multi-user authentication, hosted access controls, and public-serving TLS are outside the v1.0 scope.
+- **No at-rest encryption:** The application does not encrypt its SQLite database or backup files.
+- **External dependencies vary:** Providers may become unavailable, change APIs, or rate-limit requests; Docker has not been validated on every target computer.
+
+See [Security & Privacy](SECURITY.md) for additional operational requirements.
+
+---
+
+## Roadmap
+
+The v1.0 feature set is intentionally frozen. Potential future improvements are **proposals, not implemented features**:
+
+- Smoother saved-opportunity → Application Studio context handoff.
+- More authorized job-provider integrations and configurable discovery policies.
+- Opt-in scheduling and notifications for saved searches.
+- Richer draft export and review workflows.
+- Stronger deployment architecture, account-based access controls, monitoring, and automated security checks.
+
+---
+
+## Documentation
+
+| Resource | Description |
+|---|---|
+| [Technical Architecture](docs/architecture.md) | Modules, data flow, and trust boundaries |
+| [Engineering Design Decisions](docs/design-decisions.md) | Rationale and trade-offs |
+| [Windows Setup](docs/setup-windows.md) | Fresh installation and safe local operation |
+| [Security & Privacy](SECURITY.md) | Supported scope and known risks |
+| [Release Checklist](docs/release-checklist.md) | Verification and publication safeguards |
+| [Changelog](CHANGELOG.md) | Release evolution |
+| [v1.0.0-local Release](https://github.com/mahmmooudian/careerpilot-ai/releases/tag/v1.0.0-local) | Versioned release notes |
+
+---
+
+## Author
+
+**Amir Mohammad Mahmoudian**  
+AI Engineer & Researcher  
+[GitHub](https://github.com/mahmmooudian) · [Portfolio](https://sites.google.com/view/mahmoudian/home)
 
 ## License
 
-A public license has **not yet been selected**. The repository owner must decide and add a suitable `LICENSE` file before granting reuse rights. Until then, public visibility by itself does not grant an open-source license.
+**No open-source license has been selected for this repository.** The code is publicly visible, but public visibility alone does not grant permission to redistribute, modify, or use it under an open-source license. A `LICENSE` file may be added later at the repository owner's discretion.
 
 ---
 
 <div align="center">
-  <strong>CareerPilot AI</strong> — Review evidence. Understand relevance. Make your own decisions.
+
+**CareerPilot AI** · Understand the evidence. Explore opportunities. Apply with intention.
+
 </div>
